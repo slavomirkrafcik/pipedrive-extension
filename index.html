@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pipedrive Extension</title>
+    <!-- Pipedrive SDK - UMD version -->
+    <script src="https://cdn.jsdelivr.net/npm/@pipedrive/app-extensions-sdk@0/dist/index.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -79,24 +81,23 @@
         <div class="status" id="status">Inicializujem...</div>
     </div>
 
-    <!-- Pipedrive SDK -->
-    <script src="https://unpkg.com/@pipedrive/app-extensions-sdk@0.6.2/dist/index.js"></script>
-    
     <script>
+        let sdk;
+        
         // Inicializuj Pipedrive SDK
-        (async () => {
+        (async function() {
             try {
-                const sdk = await new window.PipedriveCustomAppSurfacesSDK.default().initialize({
-                    size: { height: 250 }
+                // AppExtensionsSDK je dostupné globálne po načítaní UMD verzie
+                sdk = await new AppExtensionsSDK().initialize({
+                    size: { height: 300 }
                 });
                 
                 document.getElementById('status').textContent = '✓ Panel pripravený';
-                
-                console.log('Pipedrive SDK initialized successfully');
+                console.log('Pipedrive SDK initialized successfully', sdk);
                 
             } catch (error) {
                 console.error('Failed to initialize Pipedrive SDK:', error);
-                document.getElementById('status').textContent = '✗ Chyba inicializácie';
+                document.getElementById('status').textContent = '✗ Chyba: ' + error.message;
             }
         })();
         
