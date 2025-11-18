@@ -84,13 +84,40 @@
     <script>
         let sdk;
         
+        // Pomocná funkcia na získanie query parametra z URL
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
         // Inicializuj Pipedrive SDK
         (async function() {
             try {
-                // AppExtensionsSDK je dostupné globálne po načítaní UMD verzie
-                sdk = await new AppExtensionsSDK().initialize({
-                    size: { height: 300 }
-                });
+                // Debug: vypíš všetky query parametre
+                console.log('Current URL:', window.location.href);
+                console.log('Query params:', window.location.search);
+                
+                // Získaj ID z URL
+                const identifier = getQueryParam('id');
+                console.log('Identifier from URL:', identifier);
+                
+                // Zobraz status
+                document.getElementById('status').textContent = identifier 
+                    ? `Inicializujem s ID: ${identifier.substring(0, 8)}...` 
+                    : 'Inicializujem bez ID...';
+                
+                // Inicializuj SDK
+                if (identifier) {
+                    // Ak máme ID, predaj ho explicitne
+                    sdk = await new AppExtensionsSDK({ identifier: identifier }).initialize({
+                        size: { height: 300 }
+                    });
+                } else {
+                    // Skús automatické načítanie
+                    sdk = await new AppExtensionsSDK().initialize({
+                        size: { height: 300 }
+                    });
+                }
                 
                 document.getElementById('status').textContent = '✓ Panel pripravený';
                 console.log('Pipedrive SDK initialized successfully', sdk);
@@ -98,6 +125,9 @@
             } catch (error) {
                 console.error('Failed to initialize Pipedrive SDK:', error);
                 document.getElementById('status').textContent = '✗ Chyba: ' + error.message;
+                
+                // Zobraz aj query parametre pre debugging
+                console.error('URL params:', window.location.search);
             }
         })();
         
